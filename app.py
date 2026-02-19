@@ -52,9 +52,8 @@ def main(input_data: str | list[dict] | pd.DataFrame) -> None:
     res = res.drop(columns=["patient_id", "day_utc"])
     res = res.rename(columns={"critical_count": "critical",
                               "warning_count": "warning",
-                              "is_ok": "ok",
+                              "is_ok_count": "ok",
                               })
-    res["ok"] = res["ok"].astype(int)
 
     print(json.dumps(res.to_dict(orient="index"), indent=4, default=str, sort_keys=True))
 

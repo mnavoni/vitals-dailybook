@@ -1,4 +1,3 @@
-import io
 import json
 
 import pytest
@@ -19,9 +18,8 @@ def base_data():
 
 
 def test_pass_original_assignment(capsys, base_data: list[dict]):
-    # the expected output had to be modified because it didn't make real sense
     expected_output = {
-"p1|2025-10-19": {"critical":1,"warning":0,"ok":0,"needs_attention":True},
+"p1|2025-10-19": {"critical":1,"warning":0,"ok":1,"needs_attention":True},
 "p2|2025-10-19": {"critical":1,"warning":1,"ok":0,"needs_attention":True}
 }
     expected = json.loads(json.dumps(expected_output, sort_keys=True))
@@ -79,7 +77,7 @@ def test_ok_patient(capsys):
 
     app.main(base_data)
     result = json.loads(capsys.readouterr().out)
-    assert result["p4|2025-10-19"]["ok"] == 1
+    assert result["p4|2025-10-19"]["ok"] == 5
 
 
 def test_bad_health_patient(capsys):

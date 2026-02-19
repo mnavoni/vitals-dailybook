@@ -38,6 +38,10 @@ def _analyze_patient_readings(readings: pd.DataFrame) -> None:
         ["spo_low", "bp_sys_high", "bp_dia_high"]
     ].any(axis="columns")
 
+    readings["is_ok"] = ~readings[
+        ["critical", "warning"]
+    ].any(axis="columns")
+
 
 def _daily_aggregation(patient_readings: pd.DataFrame) -> pd.DataFrame:
     # developer commentary: this is where the magic happens. I expect the pandas library to use a properly
@@ -46,16 +50,16 @@ def _daily_aggregation(patient_readings: pd.DataFrame) -> pd.DataFrame:
                                             "patient_id"])
 
     result = patient_days.aggregate(
-        {"warning": "sum", "critical": "sum"}
-    )[["warning", "critical"]].reset_index()
-
-    result["is_ok"] = result["warning"] + result["critical"] == 0
+        {"warning": "sum", "critical": "sum", "is_ok": "sum"}
+    )[["warning", "critical", "is_ok"]].reset_index()
 
     result["timestamp"] = result["timestamp"].dt.date
 
     result = result.rename(columns={"timestamp": "day_utc",
                                     "warning": "warning_count",
-                                    "critical": "critical_count"}
+                                    "critical": "critical_count",
+                                    "is_ok": "is_ok_count",
+                                    }
                            )
 
     result["needs_attention"] = (result["warning_count"] >= 2) | (result["critical_count"])
