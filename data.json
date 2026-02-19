@@ -1,0 +1,10 @@
+[
+{"patient_id":"p1","type":"bp_sys","value":182,"timestamp":"2025-10-19T02:31:21"},
+{"patient_id":"p1","type":"pulse","value":77,"timestamp":"2025-10-19T13:31:11"},
+{"patient_id":"p2","type":"spo2","value":88,"timestamp":"2025-10-19T18:54:12"},
+{"patient_id":"p2","type":"pulse","value":130,"timestamp":"2025-10-11T15:42:21"},
+{"patient_id":"p1","type":"pulse","value":30,"timestamp":"2025-09-12T15:42:21"},
+{"patient_id":"p2","type":"spo2","value":11,"timestamp":"2025-11-11T15:32:21"},
+{"patient_id":"p2","type":"bp_sys","value":21,"timestamp":"2025-10-12T15:42:12"},
+{"patient_id":"p2","type":"pulse","value":150,"timestamp":"2025-11-19T15:32:21"}
+]
