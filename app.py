@@ -8,9 +8,10 @@ import services
 from domain import InvalidPatientReadingError
 
 parser = argparse.ArgumentParser(
-                    prog='vitals-dailybook',
-                    description='Classifies each reading and produces a per-patient, per-day summary',
-                    epilog='Made with care, by mnavoni')
+    prog="vitals-dailybook",
+    description="Classifies each reading and produces a per-patient, per-day summary",
+    epilog="Made with care, by mnavoni",
+)
 parser.add_argument("filename")
 
 
@@ -50,12 +51,17 @@ def main(input_data: str | list[dict] | pd.DataFrame) -> None:
 
     res.index = res["patient_id"] + "|" + res["day_utc"].astype(str)
     res = res.drop(columns=["patient_id", "day_utc"])
-    res = res.rename(columns={"critical_count": "critical",
-                              "warning_count": "warning",
-                              "is_ok_count": "ok",
-                              })
+    res = res.rename(
+        columns={
+            "critical_count": "critical",
+            "warning_count": "warning",
+            "is_ok_count": "ok",
+        }
+    )
 
-    print(json.dumps(res.to_dict(orient="index"), indent=4, default=str, sort_keys=True))
+    print(
+        json.dumps(res.to_dict(orient="index"), indent=4, default=str, sort_keys=True)
+    )
 
 
 if __name__ == "__main__":
@@ -66,5 +72,5 @@ if __name__ == "__main__":
     except InvalidPatientReadingError as e:
         print(f"Invalid input file: {e}")
         sys.exit(1)
-    except FileNotFoundError as e:
+    except FileNotFoundError:
         print(f"File not found: {args.filename}")

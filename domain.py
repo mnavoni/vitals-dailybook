@@ -30,24 +30,21 @@ def _analyze_patient_readings(readings: pd.DataFrame) -> None:
     readings["pulse_low"] = _pulse_readings & (readings["value"] < 50)
     readings["pulse_high"] = _pulse_readings & (readings["value"] > 120)
 
-    readings["warning"] = readings[
-        ["pulse_low", "pulse_high"]
-    ].any(axis="columns")
+    readings["warning"] = readings[["pulse_low", "pulse_high"]].any(axis="columns")
 
-    readings["critical"] = readings[
-        ["spo_low", "bp_sys_high", "bp_dia_high"]
-    ].any(axis="columns")
+    readings["critical"] = readings[["spo_low", "bp_sys_high", "bp_dia_high"]].any(
+        axis="columns"
+    )
 
-    readings["is_ok"] = ~readings[
-        ["critical", "warning"]
-    ].any(axis="columns")
+    readings["is_ok"] = ~readings[["critical", "warning"]].any(axis="columns")
 
 
 def _daily_aggregation(patient_readings: pd.DataFrame) -> pd.DataFrame:
     # developer commentary: this is where the magic happens. I expect the pandas library to use a properly
     # optimized algorithm for grouping
-    patient_days = patient_readings.groupby([pd.Grouper(key='timestamp', freq='D', origin="start_day"),
-                                            "patient_id"])
+    patient_days = patient_readings.groupby(
+        [pd.Grouper(key="timestamp", freq="D", origin="start_day"), "patient_id"]
+    )
 
     result = patient_days.aggregate(
         {"warning": "sum", "critical": "sum", "is_ok": "sum"}
@@ -55,14 +52,18 @@ def _daily_aggregation(patient_readings: pd.DataFrame) -> pd.DataFrame:
 
     result["timestamp"] = result["timestamp"].dt.date
 
-    result = result.rename(columns={"timestamp": "day_utc",
-                                    "warning": "warning_count",
-                                    "critical": "critical_count",
-                                    "is_ok": "is_ok_count",
-                                    }
-                           )
+    result = result.rename(
+        columns={
+            "timestamp": "day_utc",
+            "warning": "warning_count",
+            "critical": "critical_count",
+            "is_ok": "is_ok_count",
+        }
+    )
 
-    result["needs_attention"] = (result["warning_count"] >= 2) | (result["critical_count"])
+    result["needs_attention"] = (result["warning_count"] >= 2) | (
+        result["critical_count"]
+    )
     return result
 
 
@@ -79,4 +80,3 @@ def daily_patient_summary(patient_readings: pd.DataFrame) -> pd.DataFrame:
     result = _daily_aggregation(patient_readings)
 
     return result
-

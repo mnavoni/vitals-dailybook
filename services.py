@@ -13,7 +13,9 @@ def sanitize_df(patient_readings: pd.DataFrame) -> pd.DataFrame:
     expected_columns = {"patient_id", "type", "timestamp", "value"}
     unknown_columns = expected_columns - set(patient_readings.columns)
     if unknown_columns:
-        raise InvalidPatientReadingError(f"Unexpected column(s) provided {unknown_columns}")
+        raise InvalidPatientReadingError(
+            f"Unexpected column(s) provided {unknown_columns}"
+        )
     _patient_readings = patient_readings.copy(deep=True)
 
     if _patient_readings["patient_id"].isna().any():
@@ -23,22 +25,24 @@ def sanitize_df(patient_readings: pd.DataFrame) -> pd.DataFrame:
 
     unknown_types = reading_types - ALLOWED_TYPES
     if unknown_types:
-        raise InvalidPatientReadingError(f"Invalid reading type(s) found: {unknown_types}")
+        raise InvalidPatientReadingError(
+            f"Invalid reading type(s) found: {unknown_types}"
+        )
 
     try:
         # accepting any kind of ISO8601 timestamp, probably should enforce UTC on input
-        _patient_readings["timestamp"] = pd.to_datetime(_patient_readings["timestamp"],
-                                                        format="ISO8601",
-                                                        utc=True,
-                                                        errors="raise"
-                                                        )
+        _patient_readings["timestamp"] = pd.to_datetime(
+            _patient_readings["timestamp"], format="ISO8601", utc=True, errors="raise"
+        )
     except Exception as e:
-        raise InvalidPatientReadingError(f"Invalid timestamp found") from e
+        raise InvalidPatientReadingError("Invalid timestamp found") from e
 
     try:
-        _patient_readings["value"] = _patient_readings["value"].astype(float, errors="raise")
+        _patient_readings["value"] = _patient_readings["value"].astype(
+            float, errors="raise"
+        )
     except Exception as e:
-        raise InvalidPatientReadingError(f"Invalid 'value' found in data") from e
+        raise InvalidPatientReadingError("Invalid 'value' found in data") from e
 
     return _patient_readings
 

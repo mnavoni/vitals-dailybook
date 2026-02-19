@@ -9,19 +9,49 @@ from domain import InvalidPatientReadingError
 @pytest.fixture()
 def base_data():
     data = [
-        {"patient_id": "p1", "type": "bp_sys", "value": 182, "timestamp": "2025-10-19T01:02:03"},
-        {"patient_id": "p1", "type": "pulse", "value": 77, "timestamp": "2025-10-19T20:11:20"},
-        {"patient_id": "p2", "type": "spo2", "value": 88, "timestamp": "2025-10-19T18:19:20"},
-        {"patient_id": "p2", "type": "pulse", "value": 130, "timestamp": "2025-10-19T13:14:15"},
+        {
+            "patient_id": "p1",
+            "type": "bp_sys",
+            "value": 182,
+            "timestamp": "2025-10-19T01:02:03",
+        },
+        {
+            "patient_id": "p1",
+            "type": "pulse",
+            "value": 77,
+            "timestamp": "2025-10-19T20:11:20",
+        },
+        {
+            "patient_id": "p2",
+            "type": "spo2",
+            "value": 88,
+            "timestamp": "2025-10-19T18:19:20",
+        },
+        {
+            "patient_id": "p2",
+            "type": "pulse",
+            "value": 130,
+            "timestamp": "2025-10-19T13:14:15",
+        },
     ]
     return data
 
 
 def test_pass_original_assignment(capsys, base_data: list[dict]):
     expected_output = {
-"p1|2025-10-19": {"critical":1,"warning":0,"ok":1,"needs_attention":True},
-"p2|2025-10-19": {"critical":1,"warning":1,"ok":0,"needs_attention":True}
-}
+        "p1|2025-10-19": {
+            "critical": 1,
+            "warning": 0,
+            "ok": 1,
+            "needs_attention": True,
+        },
+        "p2|2025-10-19": {
+            "critical": 1,
+            "warning": 1,
+            "ok": 0,
+            "needs_attention": True,
+        },
+    }
     expected = json.loads(json.dumps(expected_output, sort_keys=True))
     app.main(base_data)
     result = json.loads(capsys.readouterr().out)
@@ -38,15 +68,36 @@ def test_no_rows(capsys, base_data: list[dict]):
 
 def test_datetime_tz_mix(capsys):
     data = [
-        {"patient_id": "p1", "type": "bp_sys", "value": 182, "timestamp": "2025-10-18T23:02:03-11:00"},
-        {"patient_id": "p1", "type": "pulse", "value": 77, "timestamp": "2025-10-19T20:11:20"},
-        {"patient_id": "p1", "type": "spo2", "value": 88, "timestamp": "2025-10-19T18:19:20Z"},
-        {"patient_id": "p1", "type": "pulse", "value": 130, "timestamp": "2025-10-20T01:14:15+08:00"},
+        {
+            "patient_id": "p1",
+            "type": "bp_sys",
+            "value": 182,
+            "timestamp": "2025-10-18T23:02:03-11:00",
+        },
+        {
+            "patient_id": "p1",
+            "type": "pulse",
+            "value": 77,
+            "timestamp": "2025-10-19T20:11:20",
+        },
+        {
+            "patient_id": "p1",
+            "type": "spo2",
+            "value": 88,
+            "timestamp": "2025-10-19T18:19:20Z",
+        },
+        {
+            "patient_id": "p1",
+            "type": "pulse",
+            "value": 130,
+            "timestamp": "2025-10-20T01:14:15+08:00",
+        },
     ]
 
     app.main(data)
     result = json.loads(capsys.readouterr().out)
     assert len(result) == 1
+
 
 def test_bad_value_type(capsys, base_data: list[dict]):
     app.main(base_data)
@@ -68,11 +119,36 @@ def test_bad_timestamp(capsys, base_data: list[dict]):
 
 def test_ok_patient(capsys):
     base_data = [
-        {"patient_id": "p4", "type": "spo2", "value": 90, "timestamp": "2025-10-19T11:13:20Z"},
-        {"patient_id": "p4", "type": "bp_sys", "value": 179.99, "timestamp": "2025-10-19T12:13:20Z"},
-        {"patient_id": "p4", "type": "bp_dia", "value": 119.999, "timestamp": "2025-10-19T13:13:20Z"},
-        {"patient_id": "p4", "type": "pulse", "value": 50, "timestamp": "2025-10-19T14:13:20Z"},
-        {"patient_id": "p4", "type": "pulse", "value": 120, "timestamp": "2025-10-19T15:13:20Z"},
+        {
+            "patient_id": "p4",
+            "type": "spo2",
+            "value": 90,
+            "timestamp": "2025-10-19T11:13:20Z",
+        },
+        {
+            "patient_id": "p4",
+            "type": "bp_sys",
+            "value": 179.99,
+            "timestamp": "2025-10-19T12:13:20Z",
+        },
+        {
+            "patient_id": "p4",
+            "type": "bp_dia",
+            "value": 119.999,
+            "timestamp": "2025-10-19T13:13:20Z",
+        },
+        {
+            "patient_id": "p4",
+            "type": "pulse",
+            "value": 50,
+            "timestamp": "2025-10-19T14:13:20Z",
+        },
+        {
+            "patient_id": "p4",
+            "type": "pulse",
+            "value": 120,
+            "timestamp": "2025-10-19T15:13:20Z",
+        },
     ]
 
     app.main(base_data)
@@ -82,11 +158,36 @@ def test_ok_patient(capsys):
 
 def test_bad_health_patient(capsys):
     base_data = [
-        {"patient_id": "p4", "type": "spo2", "value": 89.0000001, "timestamp": "2025-10-19T11:13:20Z"},
-        {"patient_id": "p4", "type": "bp_sys", "value": 180.0001, "timestamp": "2025-10-19T12:13:20Z"},
-        {"patient_id": "p4", "type": "bp_dia", "value": 120.0000123, "timestamp": "2025-10-19T13:13:20Z"},
-        {"patient_id": "p4", "type": "pulse", "value": 49.991329, "timestamp": "2025-10-19T14:13:20Z"},
-        {"patient_id": "p4", "type": "pulse", "value": 120.000000002, "timestamp": "2025-10-19T15:13:20Z"},
+        {
+            "patient_id": "p4",
+            "type": "spo2",
+            "value": 89.0000001,
+            "timestamp": "2025-10-19T11:13:20Z",
+        },
+        {
+            "patient_id": "p4",
+            "type": "bp_sys",
+            "value": 180.0001,
+            "timestamp": "2025-10-19T12:13:20Z",
+        },
+        {
+            "patient_id": "p4",
+            "type": "bp_dia",
+            "value": 120.0000123,
+            "timestamp": "2025-10-19T13:13:20Z",
+        },
+        {
+            "patient_id": "p4",
+            "type": "pulse",
+            "value": 49.991329,
+            "timestamp": "2025-10-19T14:13:20Z",
+        },
+        {
+            "patient_id": "p4",
+            "type": "pulse",
+            "value": 120.000000002,
+            "timestamp": "2025-10-19T15:13:20Z",
+        },
     ]
 
     app.main(base_data)
@@ -99,12 +200,42 @@ def test_bad_health_patient(capsys):
 
 def test_needs_attention(capsys):
     base_data = [
-        {"patient_id": "p4", "type": "spo2", "value": 52, "timestamp": "2025-10-01T12:13:20Z"},
-        {"patient_id": "p4", "type": "bp_sys", "value": 12, "timestamp": "2025-10-02T12:13:20Z"},
-        {"patient_id": "p4", "type": "pulse", "value": 49.991329, "timestamp": "2025-10-03T14:13:20Z"},
-        {"patient_id": "p4", "type": "pulse", "value": 120.000000002, "timestamp": "2025-10-03T15:13:20Z"},
-        {"patient_id": "p4", "type": "bp_dia", "value": 123, "timestamp": "2025-10-04T13:13:20Z"},
-        {"patient_id": "p4", "type": "pulse", "value": 122, "timestamp": "2025-10-04T15:13:20Z"},
+        {
+            "patient_id": "p4",
+            "type": "spo2",
+            "value": 52,
+            "timestamp": "2025-10-01T12:13:20Z",
+        },
+        {
+            "patient_id": "p4",
+            "type": "bp_sys",
+            "value": 12,
+            "timestamp": "2025-10-02T12:13:20Z",
+        },
+        {
+            "patient_id": "p4",
+            "type": "pulse",
+            "value": 49.991329,
+            "timestamp": "2025-10-03T14:13:20Z",
+        },
+        {
+            "patient_id": "p4",
+            "type": "pulse",
+            "value": 120.000000002,
+            "timestamp": "2025-10-03T15:13:20Z",
+        },
+        {
+            "patient_id": "p4",
+            "type": "bp_dia",
+            "value": 123,
+            "timestamp": "2025-10-04T13:13:20Z",
+        },
+        {
+            "patient_id": "p4",
+            "type": "pulse",
+            "value": 122,
+            "timestamp": "2025-10-04T15:13:20Z",
+        },
     ]
 
     app.main(base_data)
